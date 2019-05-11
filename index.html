@@ -10,66 +10,57 @@
 
     <title>waterFall-sinanews</title>
     <style>
-	html,body,ul,li,p,div{
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-	}
-	ul,li{
-		list-style: none;
-	}
-
-  .wrap{
-  	width: 900px;
-		margin: 0 auto;
+	*{
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
   }
-
-	.clearfix:after{
-		content: '';
-		display: block;
-		clear: both;
-	}
-	#pic-ct{
-		position: relative;
-	}
-	#pic-ct .item{
-		position: absolute;
-		padding: 0 0 10px 0;
-		width: 280px;
-		margin: 10px;
-		border: 1px solid #DFDFDF;
-		background: #FFF;
-		opacity: 0;
-		transition: all .8s;
-	}
-	#pic-ct .item img{
-	    margin: 10px;
-	    width: 260px;
-	}
-	#pic-ct .item .header{
-		height: 25px;
-	    margin: 0 12px;
-	    border-bottom: 1px solid #DBDBDB;
-	}
-	#pic-ct .desp{
-		font-size: 12px;
-		line-height: 1.8;
-	  margin: 10px 15px 0;
-	  color: #777371;
-	}
-	#load{
-		visibility: hidden;
-		height: 20px;
-	}
-	.hide{
-		display: none;
-	}
+  ul,li{
+	list-style: none;
+  }
+  a{
+	color: #333;
+	text-decoration: none;
+  }
+  .wrap{
+	width: 1000px;
+	margin: 0 auto;
+  }
+  .clearfix:after{
+	content: '';
+	display: block;
+	clear: both;
+  }
+  #pic-list{
+	position: relative;
+  }
+  #pic-list .item{
+	position: absolute;
+	width: 280px;
+	margin: 10px;
+	padding-bottom:10px;
+	border: 1px solid #ccc;
+	box-shadow: 1px 1px 3px #ccc;
+  }
+  #pic-list .item img{
+	width: 260px;
+	margin: 10px;
+  }
+  #pic-list .item .title{
+	margin: 0 10px;
+  }
+  #load{
+	visibility: hidden;
+  }
+  .hide{
+	display: none;
+  }
     </style>
 </head>
 <body>
 <div class="wrap">
-        <div class="ct-waterfall">
-                <ul id="pic-ct" class="ct clearfix">
+        <div class="waterfall">
+                <ul id="pic-list" class="clearfix">
                         <!--<li class="item">
                 <a href="#" class="link">
                     <img src="http://s.img.mix.sina.com.cn/auto/resize?img=http%3A%2F%2Fwww.sinaimg.cn%2Fdy%2Fslidenews%2F5_img%2F2016_09%2F453_75615_657883.jpg&size=250_0" alt="">
@@ -81,121 +72,131 @@
             </li>-->
         
                 <!-- 用于计算 item 宽度和列数，但不展示出来-->
-                    <!-- <li class="item hide"></li> -->
+                    <li class="item hide"></li>
                 </ul>
                 <div id="load"></div>
             </div>
 </div>
-</body>
-<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script>
-    //图片懒加载
-    var curPage = 1,
-        perPageCount = 9;
-    var colSumHeight = [] ;
-	var $target = $('#load');
-    $(window).on('scroll', function(){
-        checkShow();
-    });
-    checkShow();
-
-	function checkShow(){
-		if(isShow($target)){
-			dosth();
-		}
-	}
-
-	function isShow($el){
-	  var scrollH = $(window).scrollTop(),
-	  	  winH = $(window).height(),
-	  	  top = $el.offset().top;
-
-  	  if(top < winH + scrollH){
-  	  	return true;
-  	  }else{
-  	  	return false; 
-  	  }
-	}
-    function dosth(){
-        $.ajax({
-			url: 'http://platform.sina.com.cn/slide/album_tech',
-			dataType: 'jsonp', 
-            type: 'get',  //这里使用了新浪新闻的 jsonp 接口，大家可以直接看数据， 如： http://platform.sina.com.cn/slide/album_tech?jsoncallback=func&app_key=1271687855&num=3&page=4
-			jsonp:"jsoncallback",
-			data: {
-				app_key: '1271687855',
-                format: 'json',
-                size: 'img',
-				num: perPageCount,
-				page: curPage
-			},
-        success: function(ret){
-			if(ret.status.code == 0){
-				var dataArr = ret.data;   //如果数据没问题，那么生成节点并摆放好位置
-                var $nodes = renderData(dataArr);
-                render($nodes);
-				
-
-
-				curPage++;
-			}
-		}
-        })
-    }
-
-	 
-    //瀑布流
-    function render($nodes){
-    var colSumHeight = [],
-        nodeWidth = $nodes.outerWidth(true),
-        colNum = parseInt($(window).width()/nodeWidth);
-    if(colSumHeight.length == 0){
-        for(var i=0; i<colNum; i++){
-    colSumHeight.push(0);
-         }
-    }
-
-	$nodes.each(function(){
-		var $cur = $(this);
-		//colSumHeight = [100, 250, 80, 200]
-
-		var idx = 0,
-			  minSumHeight = colSumHeight[0];
-
-		for(var i=0;i<colSumHeight.length; i++){
-			if(colSumHeight[i] < minSumHeight){
-				idx = i;
-				minSumHeight = colSumHeight[i];
-			}
-		}
-
-		$cur.css({
-			left: nodeWidth*idx,
-			top: minSumHeight,
-			opacity: 1
-		});
-
-		colSumHeight[idx] = $cur.outerHeight(true) + colSumHeight[idx];
-		$('#pic-ct').height(Math.max.apply(null,colSumHeight));
-	});
-
-}
-	// render();
-
-    function renderData(items){
-	var tpl = '',
-		$nodes;
-	for(var i = 0;i<items.length;i++){
-		tpl += '<li class="item">';
-		tpl += ' <a href="'+ items[i].url +'" class="link"><img src="' + items[i].img_url + '" alt=""></a>';
-		tpl += ' <h4 class="header">'+ items[i].short_name +'</h4>';
-		tpl += '<p class="desp">'+items[i].short_intro+'</p>';
-		tpl += '</li>';
-	}
-	$nodes = $(tpl);
-	$('#pic-ct').append($nodes);
-	return $nodes;
+ //初始化
+var curPage = 1,
+    perPageCount = 10,
+    nodeWidth = $('.item').outerWidth(),
+    colNum = Math.floor($('#pic-list').width()/nodeWidth),
+    colSumHeight = [];
+for (var i = 0; i< colNum; i++){
+  colSumHeight[i] = 0
 }
 
+// ajax 获取数据
+
+function getData(callback){
+  $.ajax({
+    url: 'https://platform.sina.com.cn/slide/album_tech',
+    dataType: 'jsonp',
+    jsonp: 'jsoncallback',
+    data: {
+      app_key: '1271687855',
+      num: perPageCount,
+      page: curPage
+    }
+  }).done(function(ret){
+    if(ret && ret.status && ret.status.code === '0'){
+      callback(ret.data)
+      curPage++
+    }else{
+      console.log('数据失败....')
+    }
+  })
+}
+
+// 获取DOM节点
+function getNode(item){
+  var tpl = '';
+      tpl += '<li class ="item">';
+      tpl += '<a href = "'+item.url+'"><img src = "'+item.img_url+'" alt = "">';
+      tpl += '<h3 class ="title">'+item.short_name+'</h3>';
+      tpl += '</li>';
+  return $(tpl);
+}
+
+//瀑布流
+var colSumHeight = [],
+    nodeWidth = $('.item').outerWidth(true),
+    colNum = Math.floor($('#pic-list').width()/nodeWidth);
+for(var i = 0; i< colNum; i++){
+  colSumHeight[i] = 0
+}
+    
+function waterfallPlace($node){
+  $node.each(function(){
+   var $self = $(this)
+    
+    var idx = 0,
+        minSumHeight = colSumHeight[0];
+    
+    for(var i = 0; i< colSumHeight.length; i++){
+      if(colSumHeight[i] < minSumHeight){
+        minSumHeight = colSumHeight[i]
+        idx = i
+      }
+    }
+    
+    $self.css({
+      top: minSumHeight,
+      left: idx*nodeWidth
+    })
+    
+    colSumHeight[idx]+= $self.outerHeight(true)
+    
+  })
+}
+
+var isDataArrive = true
+start()//用户第一次打开页面，还未滚动窗口的时候需要执行一次
+
+//获取新数据并瀑布摆放图片
+function start(){
+  getData(function(newList){
+    isDataArrive = true
+    $.each(newList,function(idx,news){
+       var $node = getNode(news)
+       $node.find('img').load(function(){
+         $('#pic-list').append($node)
+         waterfallPlace($node)
+       }) 
+    })
+  })
+  isDataArrive = false
+}
+    
+//判断是否在视野中
+
+function isVisible($el){
+  var scrollH = $(window).scrollTop(),
+      winH = $(window).height(),
+      top = $el.offset().top;
+
+  if(top < scrollH + winH){
+    return true
+  }else{
+    return false
+  }  
+}
+
+$(window).scroll(function(){
+  if(!isDataArrive){
+    return
+  }
+  if(isVisible($('#load'))){
+    start()
+  }
+})
+    
+    
+    
 </script>
+</body>
 </html>
