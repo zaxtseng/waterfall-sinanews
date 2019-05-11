@@ -98,8 +98,7 @@
 
 
 
-	var $target = $('#load')
-
+	
     $(window).on('scroll', function(){
         checkShow();
     });
@@ -107,7 +106,8 @@
 
 	function checkShow(){
 		if(isShow($target)){
-		
+			var $target = $('#load')
+
 			dosth();
 		}
 	}
