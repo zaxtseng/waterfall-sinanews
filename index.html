@@ -92,13 +92,8 @@
     //图片懒加载
     var curPage = 1,
         perPageCount = 9;
-
-    var colSumHeight = [] ,
-
-
-
-
-	
+    var colSumHeight = [] ;
+	var $target = $('#load');
     $(window).on('scroll', function(){
         checkShow();
     });
@@ -106,8 +101,6 @@
 
 	function checkShow(){
 		if(isShow($target)){
-			var $target = $('#load');
-
 			dosth();
 		}
 	}
@@ -187,47 +180,7 @@
 	});
 
 }
-render();
-
-
-
-
-// 获取数据，并且摆放位置
-
-//   var curPage = 1,
-// 		  perPageCount = 9;
-
-// 	function loadAndPlace(){
-// 		$.ajax({
-// 			url: 'http://platform.sina.com.cn/slide/album_tech',
-// 			dataType: 'jsonp',   //这里使用了新浪新闻的 jsonp 接口，大家可以直接看数据， 如： http://platform.sina.com.cn/slide/album_tech?jsoncallback=func&app_key=1271687855&num=3&page=4
-// 			jsonp:"jsoncallback",
-// 			data: {
-// 				app_key: '1271687855',
-// 				num: perPageCount,
-// 				page: curPage
-// 			}
-// 		}).done(function(ret){
-// 			if(ret && ret.status && ret.status.code === "0"){
-// 				place(ret.data);   //如果数据没问题，那么生成节点并摆放好位置
-// 				curPage++
-// 			}else{
-// 				console.log('get error data');
-// 			}
-// 		});
-// 	}
-
-
-
-// function place(nodeList){
-// 	console.log(nodeList);
-// 	$.each(nodeList, function(index,item){
-// 		var $node = getNode(item)
-// 		$node.find('img').load(function(){
-// 			$('#pic-ct').append($node)
-// 			waterFallPlace($node)
-// 		})
-// 	})
+	// render();
 
     function renderData(items){
 	var tpl = '',
